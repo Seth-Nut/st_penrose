@@ -1,7 +1,134 @@
-import numpy as np
-import random
+#import numpy as np
+#import streamlit as st
+#
+
 import streamlit as st
+import numpy as np
+import base64
+import requests
 import matplotlib.pyplot as plt
+import random
+from PIL import Image
+
+# Initial page config
+st.set_page_config(
+    page_title="Teselado de Penrose",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+class ImagesURL:
+    icon = "images/icon.png"
+
+
+class SidebarText:
+    introduction = """
+        <small> 
+        Los teselados de Penrose son patrones geométricos no periódicos que exhiben propiedades matemáticas fascinantes y aplicaciones en ciencia y arte. Este análisis explora su construcción, características y visualización, proporcionando una experiencia interactiva para aprender y experimentar con estas estructuras únicas.
+        </small>
+        """
+    goals = """
+        <small>  
+
+- 🧩 Comprender la geometría y propiedades de los teselados no periódicos  
+- 🎨 Visualizar patrones con diferentes colores y configuraciones  
+- 🔄 Explorar transformaciones geométricas como rotaciones y traslaciones  
+- 🧠 Aplicar conceptos matemáticos avanzados a problemas prácticos  
+
+     </small> 
+        """
+    
+    references = """
+        <small>
+
+        - [Wikipedia: Teselación de Penrose](https://es.wikipedia.org/wiki/Teselaci%C3%B3n_de_Penrose)  
+        - [Teselado de Penrose en la UdeC](https://www.cfm.cl/teselado/)  
+        </small>
+        """
+
+
+
+# Define img_to_bytes() function
+def img_to_bytes(img_url):
+    response = requests.get(img_url)
+    img_bytes = response.content
+    encoded = base64.b64encode(img_bytes).decode()
+    return encoded
+
+
+
+# main function
+def main():
+    """
+    Main function to set up the Streamlit app layout.
+    """
+    cs_sidebar()
+    cs_body()
+    return None
+
+# Define the cs_sidebar() function
+
+
+def cs_sidebar():
+    """
+    Populate the sidebar with various content sections related to Python.
+    """
+
+    image = Image.open(ImagesURL.icon)
+    st.sidebar.image(image, use_column_width=True)
+
+
+
+    st.sidebar.header("Teselado de Penrose")
+
+
+    st.sidebar.markdown(SidebarText.introduction,unsafe_allow_html=True)
+    st.sidebar.markdown("\n")
+
+    # Objetivos de la Ley de Protección de Datos Personales
+    with st.sidebar:
+        with st.expander("__🎯 Objetivos__"):
+            st.markdown(SidebarText.goals,unsafe_allow_html=True)
+        with st.expander("__🔗 Referencias__"):
+            st.markdown(SidebarText.references,unsafe_allow_html=True)
+
+    return None
+
+
+
+# Define the cs_body() function
+def cs_body():
+    st.title("Generador de Teselado de Penrose")
+
+    # Entrada del usuario
+    divisions = st.slider("Número de Capas/Subdivisiones de Teselado", min_value=2, max_value=8, value=5)
+
+    # Escoge los colores
+    color_options = list(color_map.keys())
+    color_thin = st.selectbox("Selecciona el color para triángulos delgados", color_options, index=color_options.index("red"))
+    color_thicc = st.selectbox("Selecciona el color para triángulos gruesos", color_options, index=color_options.index("blue"))
+    color_outline = st.selectbox("Selecciona el color para el contorno", color_options, index=color_options.index("grey"))
+
+    colors = get_colors([color_thin, color_thicc, color_outline])
+
+    # Parámetros para el dibujo
+    base = 5
+    phi = (1 + np.sqrt(5)) / 2  # Razón áurea
+
+    # Crear triángulos
+    triangles = create_initial_triangles(base)
+    triangles = subdivide_triangles(triangles, divisions, phi)
+
+    # Configurar el gráfico
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    # Dibujar los triángulos
+    draw_triangles(ax, triangles, colors)
+
+    # Mostrar el gráfico en Streamlit
+    st.pyplot(fig)
 
 # Definición del mapa de colores
 color_map = {
@@ -67,38 +194,6 @@ def draw_triangles(ax, triangles, colors):
         vertices = np.array([[v1.real, v1.imag], [v2.real, v2.imag], [v3.real, v3.imag], [v1.real, v1.imag]])
         ax.plot(vertices[:, 0], vertices[:, 1], color=colors[2], linewidth=0.5)
 
-def main():
-    st.title("Generador de Teselado de Penrose con Matplotlib")
-
-    # Entrada del usuario
-    divisions = st.slider("Número de Capas/Subdivisiones de Teselado", min_value=2, max_value=8, value=5)
-
-    # Escoge los colores
-    color_options = list(color_map.keys())
-    color_thin = st.selectbox("Selecciona el color para triángulos delgados", color_options, index=color_options.index("red"))
-    color_thicc = st.selectbox("Selecciona el color para triángulos gruesos", color_options, index=color_options.index("blue"))
-    color_outline = st.selectbox("Selecciona el color para el contorno", color_options, index=color_options.index("grey"))
-
-    colors = get_colors([color_thin, color_thicc, color_outline])
-
-    # Parámetros para el dibujo
-    base = 5
-    phi = (1 + np.sqrt(5)) / 2  # Razón áurea
-
-    # Crear triángulos
-    triangles = create_initial_triangles(base)
-    triangles = subdivide_triangles(triangles, divisions, phi)
-
-    # Configurar el gráfico
-    fig, ax = plt.subplots(figsize=(8, 8))
-    ax.set_aspect("equal")
-    ax.axis("off")
-
-    # Dibujar los triángulos
-    draw_triangles(ax, triangles, colors)
-
-    # Mostrar el gráfico en Streamlit
-    st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
