@@ -1,6 +1,6 @@
 import math
 import cmath
-import cairo
+import cairocffi as cairo
 import random
 import re
 import streamlit as st
