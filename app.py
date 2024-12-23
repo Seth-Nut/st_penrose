@@ -75,7 +75,7 @@ def cs_sidebar():
     """
 
     image = Image.open(ImagesURL.icon)
-    st.sidebar.image(image, use_column_width=True)
+    st.sidebar.image(image)
 
 
 
